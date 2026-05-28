@@ -24,6 +24,15 @@ struct PromptIQClient {
         try Self.verify(response, body: data)
     }
 
+    func deletePrompt(named name: String) async throws {
+        let encoded = name.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? name
+        var req = URLRequest(url: baseURL.appendingPathComponent("api/prompts/\(encoded)"))
+        req.httpMethod = "DELETE"
+        try await authorize(&req)
+        let (data, response) = try await URLSession.shared.data(for: req)
+        try Self.verify(response, body: data)
+    }
+
     private func authorize(_ req: inout URLRequest) async throws {
         let key = try await KeyProvider.shared.key()
         req.setValue(key, forHTTPHeaderField: "X-PromptIQ-Key")

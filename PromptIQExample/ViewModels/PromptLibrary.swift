@@ -75,4 +75,18 @@ final class PromptLibrary {
             await refreshCustoms()
         }
     }
+
+    /// Delete a custom prompt. Server-side delete is strongly consistent for
+    /// GET-by-name but list() is eventually consistent (same lag as create) —
+    /// so we also remove locally for an instant UI update.
+    /// Only callable on custom prompts; the UI gates this.
+    func delete(name: String) async throws {
+        try await PromptIQClient.shared.deletePrompt(named: name)
+        customs.removeAll { $0.name == name }
+        // Background reconcile, in case anything diverged.
+        Task {
+            try? await Task.sleep(for: .seconds(45))
+            await refreshCustoms()
+        }
+    }
 }

@@ -3,7 +3,13 @@ import SwiftUI
 struct PromptDetailView: View {
     let prompt: Prompt
 
+    @Environment(PromptLibrary.self) private var library
+    @Environment(\.dismiss) private var dismiss
+
     @State private var copied = false
+    @State private var showingDeleteConfirm = false
+    @State private var deleting = false
+    @State private var deleteError: String?
 
     var body: some View {
         ScrollView {
@@ -32,6 +38,20 @@ struct PromptDetailView: View {
         .navigationTitle(prompt.name)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            // Delete — custom prompts only. Leftmost in the trailing group
+            // so destructive action is visually separated from the safe ones.
+            if prompt.isCustom == true {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(role: .destructive) {
+                        showingDeleteConfirm = true
+                    } label: {
+                        Image(systemName: "trash")
+                            .foregroundStyle(.red)
+                    }
+                    .accessibilityLabel("Delete prompt")
+                    .disabled(deleting)
+                }
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 if let verbatim = prompt.verbatim {
                     ShareLink(item: verbatim) {
@@ -50,6 +70,39 @@ struct PromptDetailView: View {
                 }
                 .accessibilityLabel("Copy prompt")
             }
+        }
+        .alert("Delete \(prompt.name)?", isPresented: $showingDeleteConfirm) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) {
+                Task { await performDelete() }
+            }
+        } message: {
+            Text("This permanently removes the custom prompt from your PromptIQ store. Built-in prompts can't be deleted.")
+        }
+        .alert("Delete failed", isPresented: .init(
+            get: { deleteError != nil },
+            set: { if !$0 { deleteError = nil } }
+        ), presenting: deleteError) { _ in
+            Button("OK") { deleteError = nil }
+        } message: { Text($0) }
+        .overlay {
+            if deleting {
+                ProgressView("Deleting…")
+                    .tint(Brand.orange)
+                    .padding(20)
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+            }
+        }
+    }
+
+    private func performDelete() async {
+        deleting = true
+        defer { deleting = false }
+        do {
+            try await library.delete(name: prompt.name)
+            dismiss()
+        } catch {
+            deleteError = error.localizedDescription
         }
     }
 

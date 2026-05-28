@@ -17,6 +17,13 @@ struct PromptListView: View {
                 Section {
                     ForEach(library.customs) { prompt in
                         NavigationLink(value: prompt) { row(prompt) }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                Button(role: .destructive) {
+                                    Task { try? await library.delete(name: prompt.name) }
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
                     }
                 } header: {
                     sectionHeader("CUSTOM", count: library.customs.count)
