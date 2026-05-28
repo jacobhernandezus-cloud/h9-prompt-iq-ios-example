@@ -7,20 +7,20 @@ struct PromptDetailView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 20) {
                 header
 
                 if let purpose = prompt.purpose {
-                    section("Purpose", text: purpose)
+                    section("PURPOSE", text: purpose)
                 }
                 if let body = prompt.purposeBody, body != prompt.purpose {
-                    section("Detail", text: body)
+                    section("DETAIL", text: body)
                 }
                 if let verbatim = prompt.verbatim {
-                    section("Verbatim", text: verbatim, mono: true)
+                    section("VERBATIM", text: verbatim, mono: true, highlight: true)
                 }
                 if let parameterized = prompt.parameterized {
-                    section("Parameterized", text: parameterized, mono: true)
+                    section("PARAMETERIZED", text: parameterized, mono: true)
                 }
                 if let tags = prompt.tags, !tags.isEmpty {
                     tagCloud(tags)
@@ -28,6 +28,7 @@ struct PromptDetailView: View {
             }
             .padding()
         }
+        .background(Brand.cream)
         .navigationTitle(prompt.name)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -35,6 +36,7 @@ struct PromptDetailView: View {
                 if let verbatim = prompt.verbatim {
                     ShareLink(item: verbatim) {
                         Image(systemName: "square.and.arrow.up")
+                            .foregroundStyle(Brand.orange)
                     }
                 }
             }
@@ -44,6 +46,7 @@ struct PromptDetailView: View {
                     copied = true
                 } label: {
                     Image(systemName: copied ? "checkmark" : "doc.on.doc")
+                        .foregroundStyle(Brand.orange)
                 }
                 .accessibilityLabel("Copy prompt")
             }
@@ -51,53 +54,90 @@ struct PromptDetailView: View {
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
                 Text(prompt.category)
-                    .font(.caption)
+                    .font(.caption2)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.white)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
-                    .background(Color.accentColor.opacity(0.15), in: Capsule())
+                    .background(Brand.orange, in: Capsule())
                 if prompt.isCustom == true {
-                    Text("custom")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    Text("CUSTOM")
+                        .font(.caption2)
+                        .tracking(1.5)
+                        .foregroundStyle(Brand.navy)
                 }
                 Spacer()
                 if let score = prompt.score {
                     Text("\(score)")
                         .font(.caption.monospacedDigit())
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Brand.navy)
                 }
             }
             if let model = prompt.model {
-                Text("Model: \(model)").font(.caption).foregroundStyle(.secondary)
+                Text("Model · \(model)")
+                    .font(.caption2)
+                    .tracking(1)
+                    .foregroundStyle(.secondary)
             }
             if let author = prompt.author {
-                Text("Author: \(author)").font(.caption).foregroundStyle(.secondary)
+                Text("Author · \(author)")
+                    .font(.caption2)
+                    .tracking(1)
+                    .foregroundStyle(.secondary)
             }
         }
     }
 
-    private func section(_ title: String, text: String, mono: Bool = false) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title).font(.headline)
+    private func section(_ title: String, text: String, mono: Bool = false, highlight: Bool = false) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Rectangle()
+                    .fill(Brand.orange)
+                    .frame(width: 3, height: 14)
+                Text(title)
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .tracking(2)
+                    .foregroundStyle(Brand.navy)
+            }
             Text(text)
                 .font(mono ? .system(.body, design: .monospaced) : .body)
+                .foregroundStyle(Brand.textBlack)
                 .textSelection(.enabled)
+                .padding(highlight ? 12 : 0)
+                .background(highlight ? Color.white : Color.clear, in: RoundedRectangle(cornerRadius: 8))
+                .overlay(
+                    highlight ?
+                    RoundedRectangle(cornerRadius: 8)
+                        .strokeBorder(Brand.orange.opacity(0.25), lineWidth: 1)
+                    : nil
+                )
         }
     }
 
     private func tagCloud(_ tags: [String]) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text("Tags").font(.headline)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Rectangle()
+                    .fill(Brand.orange)
+                    .frame(width: 3, height: 14)
+                Text("TAGS")
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .tracking(2)
+                    .foregroundStyle(Brand.navy)
+            }
             FlowLayout(spacing: 6) {
                 ForEach(tags, id: \.self) { tag in
                     Text(tag)
                         .font(.caption)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 3)
-                        .background(Color.secondary.opacity(0.15), in: Capsule())
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .foregroundStyle(Brand.navy)
+                        .background(Brand.lightGray, in: Capsule())
                 }
             }
         }

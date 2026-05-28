@@ -59,9 +59,21 @@ App  ─►  PromptLibrary (@Observable)  ─►  PromptIQClient  ─►  KeyPro
 
 Three scoping decisions were taste-driven, not derivable from the code: standalone repo vs in-tree, read-only vs read+create, built-ins vs customs vs both. Each was a 30-second `AskUserQuestion`. The remaining "where on disk" and "key handling" questions came after the research turned up specifics.
 
+## H9 brand pass
+
+After the first working build, applied the H9 Partners brand from `H9_Partners_Branding_Guidelines.pptx`:
+
+- **Colors** — Orange `#FF8C00`, Navy `#142338`, Cream `#FAF8F4`, Light Gray `#F0F0F0`, Text Black `#1E1E1E`. Centralized in `Brand/Brand.swift` as both `Color` and `UIColor` constants (the latter for UIKit appearance proxies).
+- **Typography** — Posterama2001-Thin (the brand display font) is bundled in `Resources/Fonts/` and declared via `UIAppFonts` in the xcodegen-generated `Info.plist`. PostScript name is `Posterama2001-Thin` (no space). Used for the brand header, nav-bar titles, and section labels. Body text stays on system font for legibility.
+- **Global appearance** — `Brand.configureAppearance()` runs from `App.init()` and sets `UINavigationBarAppearance` to navy background + white Posterama title + orange tint for bar items. `.tint(Brand.orange)` on the root view propagates the accent to the rest of SwiftUI.
+- **Header lockup** — Navy card at the top of the list view with the "H9 PARTNERS" wordmark in a thin orange outlined box (echoes the actual logo), "PROMPT IQ" in big Posterama below, and "AVIATION INFRASTRUCTURE REIMAGINED" tagline underneath.
+- **Visual motif** — Repeated 3pt orange vertical rule before every section label, carried across list, detail, and new-prompt sheet. One small thing, consistent everywhere — gives the brand a fingerprint.
+
+The logo PNG is bundled but unused in v1 — the file has a white background that conflicts with the navy header. Future polish: pre-process to transparent white pixels, then drop it back into the header.
+
 ## Open items
 
-- ~~Run in the Simulator and capture screenshots / a screen recording.~~ ✅ Done — see `screenshots/01-list.png`. App built and launched first-try on Xcode 26.5, iPhone Air simulator. The list view rendered all 32 bundled built-ins correctly, sectioned, with category chips and status labels.
-- Verify the `POST /api/prompts` path against a live deploy — code is written but un-exercised. Manual test from the simulator: tap +, fill out the form, save.
+- Verify the `POST /api/prompts` path against a live deploy — code is written but un-exercised end-to-end. Manual test from the simulator: tap +, fill out the form, save, pull-to-refresh.
 - Capture detail-view and new-prompt-sheet screenshots. Blocked on Accessibility permission for the terminal process (can't drive taps via AppleScript). Easiest path: tap manually in the Simulator window, then `xcrun simctl io <udid> screenshot screenshots/02-detail.png`.
+- App icon — currently a default placeholder. The brand calls for a navy square with orange "H9" lockup; needs Asset Catalog setup.
 - Decide if the snapshot `prompts.json` should be regenerated via a Makefile / script when the upstream PromptIQ repo changes.

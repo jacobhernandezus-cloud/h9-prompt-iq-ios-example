@@ -6,28 +6,45 @@ struct PromptListView: View {
 
     var body: some View {
         List {
+            Section {
+                brandHeader
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+            }
+
             if !library.customs.isEmpty {
-                Section("Custom") {
+                Section {
                     ForEach(library.customs) { prompt in
                         NavigationLink(value: prompt) { row(prompt) }
                     }
+                } header: {
+                    sectionHeader("CUSTOM", count: library.customs.count)
                 }
             }
-            Section("Built-in (\(library.builtIns.count))") {
+
+            Section {
                 ForEach(library.builtIns) { prompt in
                     NavigationLink(value: prompt) { row(prompt) }
                 }
+            } header: {
+                sectionHeader("BUILT-IN", count: library.builtIns.count)
             }
         }
         .listStyle(.insetGrouped)
-        .navigationTitle("PromptIQ")
+        .scrollContentBackground(.hidden)
+        .background(Brand.cream)
+        .navigationTitle("PROMPT IQ")
+        .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(for: Prompt.self) { PromptDetailView(prompt: $0) }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     showingNewPrompt = true
                 } label: {
-                    Image(systemName: "plus")
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(Brand.orange)
                 }
                 .accessibilityLabel("New prompt")
             }
@@ -39,6 +56,7 @@ struct PromptListView: View {
         .overlay {
             if library.isLoading && library.customs.isEmpty {
                 ProgressView("Loading customs…")
+                    .tint(Brand.orange)
             }
         }
         .alert("Error", isPresented: .init(
@@ -49,10 +67,57 @@ struct PromptListView: View {
         } message: { Text($0) }
     }
 
+    // ── Brand header card ────────────────────────────────────
+    private var brandHeader: some View {
+        ZStack(alignment: .leading) {
+            Brand.navy
+            VStack(alignment: .leading, spacing: 6) {
+                // H9 wordmark in a thin orange border — echoes the logo lockup
+                Text("H9 PARTNERS")
+                    .font(Brand.Display.font(size: 16))
+                    .foregroundStyle(Brand.orange)
+                    .tracking(4)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 2)
+                            .strokeBorder(Brand.orange, lineWidth: 1.5)
+                    )
+                Text("PROMPT IQ")
+                    .font(Brand.Display.font(size: 40))
+                    .foregroundStyle(.white)
+                    .tracking(3)
+                    .padding(.top, 8)
+                Text("AVIATION INFRASTRUCTURE REIMAGINED")
+                    .font(.caption2)
+                    .foregroundStyle(.white.opacity(0.6))
+                    .tracking(2)
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 22)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private func sectionHeader(_ title: String, count: Int) -> some View {
+        HStack(spacing: 8) {
+            Rectangle()
+                .fill(Brand.orange)
+                .frame(width: 3, height: 14)
+            Text("\(title) · \(count)")
+                .font(.caption)
+                .fontWeight(.semibold)
+                .tracking(2)
+                .foregroundStyle(Brand.navy)
+        }
+        .textCase(nil)
+    }
+
     private func row(_ prompt: Prompt) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 6) {
             Text(prompt.name)
                 .font(.headline)
+                .foregroundStyle(Brand.textBlack)
             if let purpose = prompt.purpose {
                 Text(purpose)
                     .font(.subheadline)
@@ -62,16 +127,19 @@ struct PromptListView: View {
             HStack(spacing: 6) {
                 Text(prompt.category)
                     .font(.caption2)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(Color.accentColor.opacity(0.15), in: Capsule())
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(Brand.orange, in: Capsule())
                 if let status = prompt.status {
-                    Text(status)
+                    Text(status.uppercased())
                         .font(.caption2)
-                        .foregroundStyle(.secondary)
+                        .tracking(1)
+                        .foregroundStyle(Brand.navy.opacity(0.7))
                 }
             }
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, 4)
     }
 }
