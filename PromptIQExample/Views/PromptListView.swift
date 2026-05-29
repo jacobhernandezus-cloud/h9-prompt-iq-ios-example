@@ -78,7 +78,7 @@ struct PromptListView: View {
     private var brandHeader: some View {
         ZStack(alignment: .leading) {
             Brand.navy
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 4) {
                 // H9 wordmark in a thin orange border — echoes the logo lockup
                 Text("H9 PARTNERS")
                     .font(Brand.Display.font(size: 16))
@@ -91,17 +91,17 @@ struct PromptListView: View {
                             .strokeBorder(Brand.orange, lineWidth: 1.5)
                     )
                 Text("PROMPT IQ")
-                    .font(Brand.Display.font(size: 40))
+                    .font(Brand.Display.font(size: 36))
                     .foregroundStyle(.white)
                     .tracking(3)
-                    .padding(.top, 8)
+                    .padding(.top, 4)
                 Text("AVIATION INFRASTRUCTURE REIMAGINED")
                     .font(.caption2)
                     .foregroundStyle(.white.opacity(0.6))
                     .tracking(2)
             }
             .padding(.horizontal, 20)
-            .padding(.vertical, 22)
+            .padding(.vertical, 14)
         }
         .frame(maxWidth: .infinity)
     }
