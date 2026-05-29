@@ -138,7 +138,7 @@ struct PromptListView: View {
                     .padding(.top, 4)
                 Text("AVIATION INFRASTRUCTURE REIMAGINED")
                     .font(.caption2)
-                    .foregroundStyle(.white.opacity(0.6))
+                    .foregroundStyle(.white.opacity(0.78))
                     .tracking(2)
             }
             .padding(.horizontal, 20)
