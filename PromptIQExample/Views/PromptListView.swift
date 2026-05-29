@@ -3,19 +3,42 @@ import SwiftUI
 struct PromptListView: View {
     @Environment(PromptLibrary.self) private var library
     @State private var showingNewPrompt = false
+    @State private var query = ""
+
+    private var filteredCustoms: [Prompt] {
+        Self.filter(library.customs, by: query)
+    }
+
+    private var filteredBuiltIns: [Prompt] {
+        Self.filter(library.builtIns, by: query)
+    }
+
+    private static func filter(_ prompts: [Prompt], by query: String) -> [Prompt] {
+        let q = query.trimmingCharacters(in: .whitespaces).lowercased()
+        guard !q.isEmpty else { return prompts }
+        return prompts.filter { p in
+            p.name.lowercased().contains(q)
+                || (p.purpose?.lowercased().contains(q) ?? false)
+                || (p.tags?.contains(where: { $0.lowercased().contains(q) }) ?? false)
+                || p.category.lowercased().contains(q)
+        }
+    }
 
     var body: some View {
         List {
-            Section {
-                brandHeader
-                    .listRowInsets(EdgeInsets())
-                    .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
+            // Header only when not searching — gives the search results full vertical real estate.
+            if query.isEmpty {
+                Section {
+                    brandHeader
+                        .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                }
             }
 
-            if !library.customs.isEmpty {
+            if !filteredCustoms.isEmpty {
                 Section {
-                    ForEach(library.customs) { prompt in
+                    ForEach(filteredCustoms) { prompt in
                         NavigationLink(value: prompt) { row(prompt) }
                             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                 Button(role: .destructive) {
@@ -26,21 +49,36 @@ struct PromptListView: View {
                             }
                     }
                 } header: {
-                    sectionHeader("CUSTOM", count: library.customs.count)
+                    sectionHeader("CUSTOM", count: filteredCustoms.count)
                 }
             }
 
-            Section {
-                ForEach(library.builtIns) { prompt in
-                    NavigationLink(value: prompt) { row(prompt) }
+            if !filteredBuiltIns.isEmpty {
+                Section {
+                    ForEach(filteredBuiltIns) { prompt in
+                        NavigationLink(value: prompt) { row(prompt) }
+                    }
+                } header: {
+                    sectionHeader("BUILT-IN", count: filteredBuiltIns.count)
                 }
-            } header: {
-                sectionHeader("BUILT-IN", count: library.builtIns.count)
+            }
+
+            if !query.isEmpty && filteredCustoms.isEmpty && filteredBuiltIns.isEmpty {
+                Section {
+                    Text("No prompts match \"\(query)\".")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.vertical, 20)
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                }
             }
         }
         .listStyle(.insetGrouped)
         .scrollContentBackground(.hidden)
         .background(Brand.cream)
+        .searchable(text: $query, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search prompts")
         .navigationTitle("PROMPT IQ")
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(for: Prompt.self) { PromptDetailView(prompt: $0) }
