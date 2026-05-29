@@ -153,9 +153,8 @@ struct PromptListView: View {
                 .fill(Brand.orange)
                 .frame(width: 3, height: 14)
             Text("\(title) · \(count)")
-                .font(.caption)
-                .fontWeight(.semibold)
-                .tracking(2)
+                .font(Brand.Display.font(size: 13))
+                .tracking(3)
                 .foregroundStyle(Brand.navy)
         }
         .textCase(nil)

@@ -151,9 +151,8 @@ struct PromptDetailView: View {
                     .fill(Brand.orange)
                     .frame(width: 3, height: 14)
                 Text(title)
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .tracking(2)
+                    .font(Brand.Display.font(size: 13))
+                    .tracking(3)
                     .foregroundStyle(Brand.navy)
             }
             Text(text)
@@ -178,9 +177,8 @@ struct PromptDetailView: View {
                     .fill(Brand.orange)
                     .frame(width: 3, height: 14)
                 Text("TAGS")
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .tracking(2)
+                    .font(Brand.Display.font(size: 13))
+                    .tracking(3)
                     .foregroundStyle(Brand.navy)
             }
             FlowLayout(spacing: 6) {

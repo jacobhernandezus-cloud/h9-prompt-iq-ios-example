@@ -86,9 +86,8 @@ struct NewPromptView: View {
         HStack(spacing: 8) {
             Rectangle().fill(Brand.orange).frame(width: 3, height: 12)
             Text(title)
-                .font(.caption)
-                .fontWeight(.semibold)
-                .tracking(2)
+                .font(Brand.Display.font(size: 12))
+                .tracking(3)
                 .foregroundStyle(Brand.navy)
         }
         .textCase(nil)
