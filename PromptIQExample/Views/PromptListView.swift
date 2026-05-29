@@ -79,7 +79,10 @@ struct PromptListView: View {
         .scrollContentBackground(.hidden)
         .background(Brand.cream)
         .searchable(text: $query, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search prompts")
-        .navigationTitle("PROMPT IQ")
+        // Header card is the title — no need to repeat "PROMPT IQ" in the nav bar.
+        // Empty string keeps the nav bar styled (navy + Posterama appearance proxy
+        // is set globally in Brand.configureAppearance) but suppresses the duplicate.
+        .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(for: Prompt.self) { PromptDetailView(prompt: $0) }
         .toolbar {
